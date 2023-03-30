@@ -1,3 +1,3 @@
-# CurveApproximator
+# Curve Approximator
 
-This Python software approximates the target curve from other given curves
+This script helps with approximating a target curve from given data points with a given precision.

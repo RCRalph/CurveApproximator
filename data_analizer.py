@@ -3,18 +3,36 @@ import csv
 class Distributor:
     def __init__(self):
         self.values = []
+        self.target = []
         self.distributions = []
-        self.materials = 0
         self.precision = 0
 
     def set_data(self, filename):
+        values = []
         with open(filename) as file:
-            reader = csv.reader(file)
-            for i in reader:
-                self.values.append([float(j.replace(",", ".")) for j in i])
+            reader = csv.reader(file, delimiter="\t")
 
-        if len(self.values):
-            self.materials = len(self.values[0]) - 1
+            for i, row in enumerate(reader):
+                if not i:
+                    values = [list() for _ in range(1, len(row))]
+
+                value = [float(j.replace(",", ".")) for j in row]
+                self.target.append(value[0])
+
+                for j, item in enumerate(value[1:]):
+                    values[j].append(item)
+
+        for i in values:
+            self.values.append([])
+            sum_value = 0
+            for j in reversed(range(len(i))):
+                self.values[-1].append(sum_value)
+                sum_value += i[j]
+
+            if not sum_value:
+                self.values.pop()
+            else:
+                self.values[-1] = list(reversed(self.values[-1]))
 
         return True
 
@@ -22,9 +40,9 @@ class Distributor:
         self.precision = int(1 / value)
 
     def generate_distributions(self):
-        for i in range(self.precision ** self.materials):
+        for i in range(self.precision ** len(self.values)):
             dist = []
-            for _ in range(self.materials):
+            for _ in range(len(self.values)):
                 dist.append(i % self.precision)
                 i //= self.precision
 
@@ -34,9 +52,9 @@ class Distributor:
     def calculate_deviation(self, dist):
         result = 0
 
-        for i in self.values:
-            dist_values = [(coefficient * value) for coefficient, value in zip(dist, i[1:])]
-            result += abs(i[0] - sum(dist_values) / self.precision)
+        for i in range(len(self.target)):
+            dist_values = [(coefficient * value[i]) for coefficient, value in zip(dist, self.values)]
+            result += abs(self.target[i] - sum(dist_values) / self.precision) * (1 if i <= len(self.target) // 2 else 2)
 
         return result / len(self.values)
 
