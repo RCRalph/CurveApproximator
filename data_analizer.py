@@ -72,7 +72,7 @@ class Distributor:
 
 dist = Distributor()
 if dist.set_data(input("Enter file name: ")):
-    print("Successfully gathered data.")
+    print(f"Successfully gathered {len(dist.values)} datasets.")
 else:
     exit(2)
 
