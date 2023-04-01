@@ -4,6 +4,7 @@ class Distributor:
     def __init__(self):
         self.values = []
         self.target = []
+        self.weighs = []
         self.distributions = []
         self.precision = 0
 
@@ -14,12 +15,13 @@ class Distributor:
 
             for i, row in enumerate(reader):
                 if not i:
-                    values = [list() for _ in range(1, len(row))]
+                    values = [list() for _ in range(len(row))]
 
                 value = [float(j.replace(",", ".")) for j in row]
                 self.target.append(value[0])
+                self.weighs.append(value[1])
 
-                for j, item in enumerate(value[1:]):
+                for j, item in enumerate(value[2:]):
                     values[j].append(item)
 
         for i in values:
@@ -54,7 +56,7 @@ class Distributor:
 
         for i in range(len(self.target)):
             dist_values = [(coefficient * value[i]) for coefficient, value in zip(dist, self.values)]
-            result += abs(self.target[i] - sum(dist_values) / self.precision) * (1 if i <= len(self.target) // 2 else 2)
+            result += abs(self.target[i] - sum(dist_values) / self.precision) * self.weighs[i]
 
         return result / len(self.values)
 
