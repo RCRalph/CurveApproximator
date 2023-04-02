@@ -1,3 +1,4 @@
 .~lock*
 *.csv
 !example.csv
+curve-approximator
