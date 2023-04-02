@@ -26,7 +26,7 @@ type CurveProperties struct {
 
 type Distribution struct {
 	deviation float64
-	partition []uint64
+	partition uint64
 }
 
 func getFloat64(value string) (result float64) {
@@ -102,12 +102,13 @@ func setData(filename *string, data *CurveData) {
 }
 
 func calculateDeviation(dist *Distribution, properties *CurveProperties, data *CurveData) {
-	dist.deviation = 0
 	var value float64
+	var x uint64
 	for i := range data.targetCurve {
-		value = 0
-		for j := range dist.partition {
-			value += float64(dist.partition[j]) * data.values[j][i]
+		value, x = 0, dist.partition
+		for j := 0; j < len(data.values); j++ {
+			value += float64(x%properties.valueRange) * data.values[j][i]
+			x /= properties.valueRange
 		}
 
 		dist.deviation += math.Abs(data.targetCurve[i]-(value*properties.precision)) / data.weights[i]
@@ -124,33 +125,27 @@ func calculateBestDistribution(
 ) {
 	defer wg.Done()
 
-	dist := Distribution{
-		deviation: 0,
-		partition: make([]uint64, len(data.values)),
-	}
-
-	bestDist := Distribution{
-		deviation: math.MaxFloat64,
-		partition: make([]uint64, len(data.values)),
-	}
+	var dist, bestDist Distribution
+	bestDist.deviation = math.MaxFloat64
 
 	var temp, sum uint64
 	for i := start; i < end; i++ {
 		temp, sum = i, 0
 		for j := 0; j < len(data.values); j++ {
-			dist.partition[j], temp = temp%properties.valueRange, temp/properties.valueRange
+			sum += temp % properties.valueRange
+			temp /= properties.valueRange
 
-			if sum += dist.partition[j]; sum > properties.valueRange {
+			if sum > properties.valueRange {
 				break
 			}
 		}
 
 		if sum == properties.valueRange {
+			dist.partition, dist.deviation = i, 0
 			calculateDeviation(&dist, properties, data)
 
 			if bestDist.deviation > dist.deviation {
-				bestDist.deviation = dist.deviation
-				copy(bestDist.partition, dist.partition)
+				bestDist.deviation, bestDist.partition = dist.deviation, dist.partition
 			}
 		}
 	}
@@ -177,13 +172,11 @@ func main() {
 	}
 
 	threadNumber := uint64(runtime.GOMAXPROCS(-1))
-
 	step := properties.distNumber / threadNumber
 	waitGroup, mutex := sync.WaitGroup{}, sync.Mutex{}
-	bestDist := Distribution{
-		deviation: math.MaxFloat64,
-		partition: make([]uint64, len(data.values)),
-	}
+
+	var bestDist Distribution
+	bestDist.deviation = math.MaxFloat64
 
 	var start, stop uint64
 	waitGroup.Add(runtime.GOMAXPROCS(-1))
@@ -200,8 +193,15 @@ func main() {
 
 	waitGroup.Wait()
 	fmt.Print("Result: ")
-	for _, item := range bestDist.partition {
-		fmt.Printf("%.2f%% ", float64(item)*properties.precision*100)
+	for i := 0; i < len(data.values); i++ {
+		fmt.Printf("%.2f%%", float64(bestDist.partition%properties.valueRange)*properties.precision*100)
+
+		if i < len(data.values)-1 {
+			fmt.Print(" ")
+		} else {
+			fmt.Print("\n")
+		}
+
+		bestDist.partition /= properties.valueRange
 	}
-	fmt.Print("\n")
 }
