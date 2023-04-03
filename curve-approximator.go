@@ -111,7 +111,7 @@ func calculateDeviation(dist *Distribution, properties *CurveProperties, data *C
 			x /= properties.valueRange
 		}
 
-		dist.deviation += math.Abs(data.targetCurve[i]-(value*properties.precision)) / data.weights[i]
+		dist.deviation += math.Abs(data.targetCurve[i]-(value*properties.precision)) * data.weights[i]
 	}
 }
 
@@ -192,6 +192,7 @@ func main() {
 	}
 
 	waitGroup.Wait()
+
 	fmt.Print("Result: ")
 	for i := 0; i < len(data.values); i++ {
 		fmt.Printf("%.2f%%", float64(bestDist.partition%properties.valueRange)*properties.precision*100)

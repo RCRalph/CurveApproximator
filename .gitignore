@@ -1,5 +1,6 @@
 .~lock*
 *.csv
 *.ods
-!example.*
+*.pdf
+!Example/*
 curve-approximator
