@@ -158,7 +158,7 @@ func calculateBestDistribution(
 }
 
 func main() {
-	filename := flag.String("file", "example.csv", "Filename of the file with datasets")
+	filename := flag.String("file", "Example/Data.csv", "Filename of the file with datasets")
 	pd := flag.Float64("precision", 0.1, "Approximation precision in decimal: 1% = 0.01")
 	flag.Parse()
 
