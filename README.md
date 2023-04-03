@@ -2,7 +2,7 @@
 This tool helps with approximating a target curve from given datasets with a given precision.
 
 ## Features
-- Written in Go.
+- Written in **Go 1.20.2**.
 - Multithreading support.
 - Around 1000x faster than an equivalent Python 3.10 script, measured on AMD Ryzen 7 5800X.
 
