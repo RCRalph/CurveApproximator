@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/atotto/clipboard"
 )
 
 type CurveData struct {
@@ -29,8 +31,8 @@ type Distribution struct {
 	partition uint64
 }
 
-func getFloat64(value string) (result float64) {
-	value = strings.Replace(value, ",", ".", 1)
+func getFloat64(value string, separator *string) (result float64) {
+	value = strings.Replace(value, *separator, ".", 1)
 	result, err := strconv.ParseFloat(value, 64)
 
 	if err != nil {
@@ -53,7 +55,7 @@ func ipow(base uint64, exponent uint64) (result uint64) {
 	return result
 }
 
-func setData(filename *string, data *CurveData) {
+func setData(filename *string, data *CurveData, separator *string) {
 	file, err := os.Open(*filename)
 	if err != nil {
 		panic(err)
@@ -71,15 +73,15 @@ func setData(filename *string, data *CurveData) {
 			panic(err)
 		}
 
-		data.targetCurve = append(data.targetCurve, getFloat64(row[0]))
-		data.weights = append(data.weights, getFloat64(row[1]))
+		data.targetCurve = append(data.targetCurve, getFloat64(row[0], separator))
+		data.weights = append(data.weights, getFloat64(row[1], separator))
 
 		if len((data.values)) == 0 {
 			data.values = make([][]float64, len(row)-2)
 		}
 
 		for i := 0; i < len(row)-2; i++ {
-			data.values[i] = append(data.values[i], getFloat64(row[i+2]))
+			data.values[i] = append(data.values[i], getFloat64(row[i+2], separator))
 		}
 	}
 
@@ -160,10 +162,11 @@ func calculateBestDistribution(
 func main() {
 	filename := flag.String("file", "Example/Data.csv", "Filename of the file with datasets")
 	pd := flag.Float64("precision", 0.1, "Approximation precision in decimal: 1% = 0.01")
+	separator := flag.String("separator", ".", "Decimal separator")
 	flag.Parse()
 
 	var data CurveData
-	setData(filename, &data)
+	setData(filename, &data, separator)
 
 	properties := CurveProperties{
 		precision:  *pd,
@@ -193,16 +196,19 @@ func main() {
 
 	waitGroup.Wait()
 
-	fmt.Print("Result: ")
+	result := ""
 	for i := 0; i < len(data.values); i++ {
-		fmt.Printf("%.2f%%", float64(bestDist.partition%properties.valueRange)*properties.precision*100)
-
-		if i < len(data.values)-1 {
-			fmt.Print(" ")
-		} else {
-			fmt.Print("\n")
-		}
-
+		result += fmt.Sprintf("%.2f%%\t", float64(bestDist.partition%properties.valueRange)*properties.precision*100)
 		bestDist.partition /= properties.valueRange
+	}
+
+	if *separator != "." {
+		result = strings.ReplaceAll(result, ".", *separator)
+	}
+
+	fmt.Println("Result:", result)
+
+	if clipboard.WriteAll(result) == nil {
+		fmt.Println("Result copied to clipboard.")
 	}
 }
