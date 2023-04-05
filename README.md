@@ -18,17 +18,18 @@ This tool helps with approximating a target curve from given datasets with a giv
 To compile the software, run `go build curve-approximator.go`. After that, the resulting executable will be available under `./curve-approximator`.
 
 ## Flags
-- `-file` - path to the file with data, ex. `-file Example/Data.csv`.
-- `-precision` - precision to calculate the result to, ex. `-precision 0.01` will calculate the optimal curve to a precision of **1%**.
-- `-separator` - decimal separator present in data, ex. `-separator .` will set `.` as the decimal separator.
+- `-file` - path to the file with data, the default is `-file Example/Data.csv`.
+- `-precision` - precision to calculate the result to, the default is `-precision 0.01`, which will calculate the optimal curve to a precision of **1%**.
+- `-separator` - decimal point separator used in data, the default is `-separator "."`.
+- `-delimiter` - field delimiter used in data (one character only), the default is `-delimiter ","`. You can also specify the `\t` character, but no other escaped characters work.
 
-Flags can be prefixed either with `-` and `--`.
+Flags can be prefixed either with `-` and `--`. Bear in mind that you don't have to set the flag if the default value is what you want.
 
 ## Examples of usage:
-```sh
+```bash
 # Run without compilation
-go run curve-approximator.go -file Example/Data.csv -precision 0.001 -separator "."
+go run curve-approximator.go -file Example/Data.csv -precision 0.001 -separator "." -delimiter ","
 
 # Run compiled executable
-./curve-approximator --file Data.csv --precision 0.001 --separator ","
+./curve-approximator --file Data.csv --precision 0.001 --separator "," --delimiter "\t"
 ```

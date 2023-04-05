@@ -42,7 +42,7 @@ func getFloat64(value string, separator *string) (result float64) {
 	return result
 }
 
-func ipow(base uint64, exponent uint64) (result uint64) {
+func ipow(base, exponent uint64) (result uint64) {
 	if exponent == 0 {
 		return 1
 	}
@@ -55,7 +55,7 @@ func ipow(base uint64, exponent uint64) (result uint64) {
 	return result
 }
 
-func setData(filename *string, data *CurveData, separator *string) {
+func setData(data *CurveData, filename, separator *string, delimiter *rune) {
 	file, err := os.Open(*filename)
 	if err != nil {
 		panic(err)
@@ -63,7 +63,7 @@ func setData(filename *string, data *CurveData, separator *string) {
 	defer file.Close()
 
 	reader := csv.NewReader(bufio.NewReader(file))
-	reader.Comma = '\t'
+	reader.Comma = *delimiter
 
 	for {
 		row, err := reader.Read()
@@ -163,10 +163,16 @@ func main() {
 	filename := flag.String("file", "Example/Data.csv", "Filename of the file with datasets")
 	pd := flag.Float64("precision", 0.1, "Approximation precision in decimal: 1% = 0.01")
 	separator := flag.String("separator", ".", "Decimal separator")
+	d := flag.String("delimiter", ",", "Field delimiter")
 	flag.Parse()
 
+	delimiter := rune((*d)[0])
+	if *d == "\\t" {
+		delimiter = '\t'
+	}
+
 	var data CurveData
-	setData(filename, &data, separator)
+	setData(&data, filename, separator, &delimiter)
 
 	properties := CurveProperties{
 		precision:  *pd,
