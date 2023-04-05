@@ -30,5 +30,5 @@ Flags can be prefixed either with `-` and `--`.
 go run curve-approximator.go -file Example/Data.csv -precision 0.001 -separator "."
 
 # Run compiled executable
-./curve-approximator --file Data.csv --precision 0.001 -separator ","
+./curve-approximator --file Data.csv --precision 0.001 --separator ","
 ```
