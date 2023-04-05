@@ -9,7 +9,7 @@ This tool helps with approximating a target curve from given datasets with a giv
 ## Getting started
 1. Fill in your data in the **Chart data** sheet of `Data.ods` spreadsheet (you can find it in the **Example** folder).
 2. Select all content of the **Data for analysis** sheet and paste it into `Data.csv` file. Make sure the delimiter is the tabulation character (`\t`). Optionally the decimal point can be represented by a comma. Make sure to save the file.
-3. Install require dependencies.
+3. Install required dependencies.
 4. Run the software without compiling using `go run curve-approximator.go`. After the calculation is done, the result will appear in the command line.
 5. Fill in the calculated values into the **Chart data** sheet in the row starting with **Optimal**.
 6. Optionally: Export the results to `.pdf` by printing the spreadsheet.
@@ -30,5 +30,5 @@ Flags can be prefixed either with `-` and `--`.
 go run curve-approximator.go -file Example/Data.csv -precision 0.001 -separator "."
 
 # Run compiled executable
-./curve-approximator --file Data.csv --precision 0.001 -separator ","
+./curve-approximator --file Data.csv --precision 0.001 --separator ","
 ```
